@@ -85,9 +85,9 @@ export default class TileSource extends EventEmitter {
 
   public parseOptions: ParseOptionsType;
 
-  #loaded = false;
-  #sourceCache: SourceCache;
-  #tileWorkers: Map<string, any> = new Map();
+  private _loaded = false;
+  private _sourceCache: SourceCache;
+  private tileWorkers: Map<string, any> = new Map();
 
   constructor(id, options: TileSourceOptions) {
     super();
@@ -112,11 +112,11 @@ export default class TileSource extends EventEmitter {
       type: this.type,
     };
 
-    this.#sourceCache = new SourceCache(this.id, this);
+    this._sourceCache = new SourceCache(this.id, this);
   }
 
   get sourceCache() {
-    return this.#sourceCache;
+    return this._sourceCache;
   }
 
   onAdd(layer, cb?: any) {
@@ -142,7 +142,7 @@ export default class TileSource extends EventEmitter {
    * @param cb
    */
   load(cb?: any) {
-    this.#loaded = true;
+    this._loaded = true;
     this.url = this.options.url;
     if (cb) {
       cb(null);
@@ -150,16 +150,16 @@ export default class TileSource extends EventEmitter {
   }
 
   loaded() {
-    return this.#loaded;
+    return this._loaded;
   }
 
   reload(clear: boolean) {
-    this.#loaded = false;
+    this._loaded = false;
     this.load(() => {
       if (clear) {
-        this.#sourceCache.clearTiles();
+        this._sourceCache.clearTiles();
       } else {
-        this.#sourceCache.reload();
+        this._sourceCache.reload();
       }
       this.layer?.update();
     });
@@ -247,8 +247,8 @@ export default class TileSource extends EventEmitter {
         const urls = this.getTileUrl(tile.tileID);
 
         const key = urls.join(',');
-        this.#tileWorkers.set(key, this.#tileWorkers.get(key) || this.dispatcher.getActor());
-        tile.actor = this.#tileWorkers.get(key);
+        this.tileWorkers.set(key, this.tileWorkers.get(key) || this.dispatcher.getActor());
+        tile.actor = this.tileWorkers.get(key);
 
         const p: Promise<any>[] = [];
         for (let i = 0; i < urls.length; i++) {
@@ -324,8 +324,8 @@ export default class TileSource extends EventEmitter {
 
   destroy() {
     this.layer = null;
-    this.#loaded = false;
-    this.#tileWorkers.clear();
-    this.#sourceCache.clear();
+    this._loaded = false;
+    this.tileWorkers.clear();
+    this._sourceCache.clear();
   }
 }

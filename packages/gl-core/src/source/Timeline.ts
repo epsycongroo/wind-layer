@@ -118,18 +118,18 @@ class TimelineSource extends EventEmitter {
 
   public intervals: TimelineSourceOptions['intervals'];
 
-  #loaded = false;
-  #sourceCache: SourceCache[];
+  private _loaded = false;
+  private _sourceCache: SourceCache[];
 
-  #current: TileSource | ImageSource;
-  #next: TileSource | ImageSource;
+  private current: TileSource | ImageSource;
+  private next: TileSource | ImageSource;
 
-  #index: number;
-  #fadeTime = 0;
+  private index: number;
+  private fadeTime = 0;
 
-  #track: Track;
+  private _track: Track;
 
-  #cache: Map<string, any> = new Map();
+  private _cache: Map<string, any> = new Map();
 
   constructor(id: string, options: TimelineSourceOptions) {
     super();
@@ -162,7 +162,7 @@ class TimelineSource extends EventEmitter {
     };
 
     const current = this.intervals[0];
-    this.#index = 0;
+    this.index = 0;
 
     this.animate = this.animate.bind(this);
     this.tilesLoadEnd = this.tilesLoadEnd.bind(this);
@@ -195,23 +195,23 @@ class TimelineSource extends EventEmitter {
       throw new Error('不支持的数据源类型！');
     }
 
-    this.#current = new (sourceImpl[options.sourceType] as any)(`${this.id}_current`, config);
-    this.#next = new (sourceImpl[options.sourceType] as any)(`${this.id}_next`, config);
-    const currentLoadTile = this.#current.loadTile;
-    const nextLoadTile = this.#next.loadTile;
+    this.current = new (sourceImpl[options.sourceType] as any)(`${this.id}_current`, config);
+    this.next = new (sourceImpl[options.sourceType] as any)(`${this.id}_next`, config);
+    const currentLoadTile = this.current.loadTile;
+    const nextLoadTile = this.next.loadTile;
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
     function wrapCurrentLoadTile(tile: Tile, callback) {
       const key = `${tile.tileID.tileKey}-${generateKey(this.url)}`;
-      const cacheTile = that.#cache.get(key);
+      const cacheTile = that.cache.get(key);
       if (cacheTile) {
         tile.copy(cacheTile);
         callback(null, true);
       } else {
         currentLoadTile.call(this, tile, (err, data) => {
-          if (!err && !that.#cache.has(key) && tile.state === TileState.loaded) {
-            that.#cache.set(key, tile);
+          if (!err && !that.cache.has(key) && tile.state === TileState.loaded) {
+            that.cache.set(key, tile);
           }
           callback(err, data);
         });
@@ -219,28 +219,28 @@ class TimelineSource extends EventEmitter {
     }
     function wrapNextLoadTile(tile: Tile, callback) {
       const key = `${tile.tileID.tileKey}-${generateKey(this.url)}`;
-      const cacheTile = that.#cache.get(key);
+      const cacheTile = that.cache.get(key);
       if (cacheTile) {
         tile.copy(cacheTile);
         callback(null, true);
       } else {
         nextLoadTile.call(this, tile, (err, data) => {
-          if (!err && !that.#cache.has(key) && tile.state === TileState.loaded) {
-            that.#cache.set(key, tile);
+          if (!err && !that.cache.has(key) && tile.state === TileState.loaded) {
+            that.cache.set(key, tile);
           }
           callback(err, data);
         });
       }
     }
 
-    this.#current.loadTile = wrapCurrentLoadTile;
-    this.#next.loadTile = wrapNextLoadTile;
-    this.#current.sourceCache.on('tilesLoadEnd', this.tilesLoadEnd);
-    this.#next.sourceCache.on('tilesLoadEnd', this.tilesLoadEnd);
+    this.current.loadTile = wrapCurrentLoadTile;
+    this.next.loadTile = wrapNextLoadTile;
+    this.current.sourceCache.on('tilesLoadEnd', this.tilesLoadEnd);
+    this.next.sourceCache.on('tilesLoadEnd', this.tilesLoadEnd);
   }
 
   get track() {
-    return this.#track;
+    return this._track;
   }
 
   get privateType(): LayerSourceType {
@@ -248,24 +248,24 @@ class TimelineSource extends EventEmitter {
   }
 
   get cache() {
-    return this.#cache;
+    return this._cache;
   }
 
   get source() {
-    return [this.#current, this.#next];
+    return [this.current, this.next];
   }
 
   get sourceCache() {
-    return [this.#current?.sourceCache, this.#next?.sourceCache].filter(Boolean);
+    return [this.current?.sourceCache, this.next?.sourceCache].filter(Boolean);
   }
 
   onAdd(layer) {
     this.layer = layer;
-    if (this.#current) {
-      this.#current.onAdd(this.layer, (error) => {
+    if (this.current) {
+      this.current.onAdd(this.layer, (error) => {
         if (!error) {
-          if (this.#next) {
-            this.#next.onAdd(this.layer, (err) => {
+          if (this.next) {
+            this.next.onAdd(this.layer, (err) => {
               if (!err) {
                 this.load();
               }
@@ -280,16 +280,16 @@ class TimelineSource extends EventEmitter {
     this.renderer = renderer;
     this.dispatcher = dispatcher;
     this.parseOptions = parseOptions;
-    if (this.#current) {
-      this.#current.prepare(renderer, dispatcher, parseOptions);
+    if (this.current) {
+      this.current.prepare(renderer, dispatcher, parseOptions);
     }
-    if (this.#next) {
-      this.#next.prepare(renderer, dispatcher, parseOptions);
+    if (this.next) {
+      this.next.prepare(renderer, dispatcher, parseOptions);
     }
   }
 
   getFadeTime() {
-    return this.#fadeTime;
+    return this.fadeTime;
   }
 
   tilesLoadEnd() {
@@ -298,25 +298,25 @@ class TimelineSource extends EventEmitter {
 
   animate({ position }) {
     const len = this.intervals.length;
-    const lastIndex = this.#index;
-    this.#index = position * utils.clamp(len - 1, 0, Infinity);
+    const lastIndex = this.index;
+    this.index = position * utils.clamp(len - 1, 0, Infinity);
 
-    const diff = Math.floor(this.#index) - Math.floor(lastIndex);
+    const diff = Math.floor(this.index) - Math.floor(lastIndex);
 
     if (diff > 0 || diff < 0) {
       // 如果 swap source 有任意一个数据未加载完成，停止动画等待加载完成后再执行动画
-      if (!this.#current?.sourceCache.loaded() || !this.#next?.sourceCache.loaded()) {
+      if (!this.current?.sourceCache.loaded() || !this.next?.sourceCache.loaded()) {
         this.pause();
       } else {
-        this.#fadeTime = 0;
+        this.fadeTime = 0;
         // swap source
-        [this.#current, this.#next] = [this.#next, this.#current];
+        [this.current, this.next] = [this.next, this.current];
         this.pause();
-        const item = this.intervals[utils.clamp(Math.floor(this.#index), 0, len - 1)];
-        this.#next.update(item, true);
+        const item = this.intervals[utils.clamp(Math.floor(this.index), 0, len - 1)];
+        this.next.update(item, true);
       }
     } else {
-      this.#fadeTime = this.#index % 1;
+      this.fadeTime = this.index % 1;
     }
 
     if (this.layer) {
@@ -325,45 +325,45 @@ class TimelineSource extends EventEmitter {
 
     this.emit('update', {
       position,
-      index: this.#index,
-      clampIndex: utils.clamp(Math.floor(this.#index), 0, len - 1),
+      index: this.index,
+      clampIndex: utils.clamp(Math.floor(this.index), 0, len - 1),
     });
   }
 
   play() {
-    this.#track.play();
-    this.emit('play', { position: this.#track.position });
+    this.track.play();
+    this.emit('play', { position: this.track.position });
   }
 
   pause() {
-    this.#track.pause();
-    this.emit('pause', { position: this.#track.position });
+    this.track.pause();
+    this.emit('pause', { position: this.track.position });
   }
 
   resume() {
-    this.#track.resume();
-    this.emit('resume', { position: this.#track.position });
+    this.track.resume();
+    this.emit('resume', { position: this.track.position });
   }
 
   stop() {
-    this.#track.stop();
-    this.emit('stop', { position: this.#track.position });
+    this.track.stop();
+    this.emit('stop', { position: this.track.position });
   }
 
   restart() {
-    this.#track.restart();
-    this.emit('restart', { position: this.#track.position });
+    this.track.restart();
+    this.emit('restart', { position: this.track.position });
   }
 
   load(cb?: any) {
-    this.#loaded = true;
-    this.#track = new Track({
+    this._loaded = true;
+    this._track = new Track({
       duration: (this.options.duration as number) * utils.clamp(this.intervals.length - 1, 0, Infinity),
       endDelay: this.options.endDelay,
       repeat: this.options.repeat,
       autoplay: this.options.autoplay,
     });
-    this.#track.on('track', this.animate);
+    this.track.on('track', this.animate);
 
     this.layer?.update();
 
@@ -371,19 +371,19 @@ class TimelineSource extends EventEmitter {
       cb(null);
     }
 
-    this.emit('loaded', { position: this.#track.position });
+    this.emit('loaded', { position: this.track.position });
   }
 
   loaded() {
-    return this.#loaded;
+    return this._loaded;
   }
 
   destroy() {
     this.layer = null;
-    this.#loaded = false;
-    this.#track.off('track', this.animate);
-    if (this.#sourceCache && Array.isArray(this.#sourceCache)) {
-      this.#sourceCache.forEach((s) => {
+    this._loaded = false;
+    this.track.off('track', this.animate);
+    if (this._sourceCache && Array.isArray(this._sourceCache)) {
+      this._sourceCache.forEach((s) => {
         s.clear();
       });
     }

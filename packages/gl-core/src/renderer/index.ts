@@ -183,19 +183,19 @@ export default class BaseLayer {
     u_scale: [number, number];
   };
 
-  #opacity: number;
-  #numParticles: number;
-  #speedFactor: number;
-  #fadeOpacity: number;
-  #dropRate: number;
-  #dropRateBump: number;
-  #space: number;
-  #size: [number, number];
-  #colorRange: Vector2;
-  #colorRampTexture: DataTexture;
-  #nextStencilID: number;
-  #maskPass: MaskPass;
-  #isRasterize: boolean;
+  private opacity: number;
+  private numParticles: number;
+  private speedFactor: number;
+  private fadeOpacity: number;
+  private dropRate: number;
+  private dropRateBump: number;
+  private space: number;
+  private size: [number, number];
+  private colorRange: Vector2;
+  private colorRampTexture: DataTexture;
+  private nextStencilID: number;
+  private maskPass: MaskPass;
+  private isRasterize: boolean;
 
   constructor(source: SourceType, rs: { renderer: Renderer; scene: Scene }, options?: Partial<BaseLayerOptions>) {
     this.renderer = rs.renderer;
@@ -222,9 +222,9 @@ export default class BaseLayer {
       },
     };
 
-    this.#opacity = 1;
+    this.opacity = 1;
 
-    this.#nextStencilID = 1;
+    this.nextStencilID = 1;
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
@@ -273,7 +273,7 @@ export default class BaseLayer {
     const bandType = getBandType(this.options.renderFrom ?? RenderFrom.r);
 
     if (this.options.mask) {
-      this.#maskPass = new MaskPass('MaskPass', this.renderer, {
+      this.maskPass = new MaskPass('MaskPass', this.renderer, {
         mask: this.options.mask,
       });
     }
@@ -283,7 +283,7 @@ export default class BaseLayer {
         bandType,
         source: this.source,
         renderFrom: this.options.renderFrom ?? RenderFrom.r,
-        maskPass: this.#maskPass,
+        maskPass: this.maskPass,
         stencilConfigForOverlap: this.stencilConfigForOverlap.bind(this),
       });
       const rasterPass = new RasterPass('RasterPass', this.renderer, {
@@ -308,9 +308,9 @@ export default class BaseLayer {
         bandType,
         source: this.source,
         renderFrom: this.options.renderFrom ?? RenderFrom.r,
-        maskPass: this.#maskPass,
+        maskPass: this.maskPass,
         stencilConfigForOverlap: this.stencilConfigForOverlap.bind(this),
-        isRasterize: () => this.#isRasterize,
+        isRasterize: () => this.isRasterize,
       });
       const colorizePass = new ColorizePass('ColorizePass', this.renderer, {
         bandType,
@@ -347,7 +347,7 @@ export default class BaseLayer {
         source: this.source,
         texture: composePass.textures.current,
         textureNext: composePass.textures.next,
-        getParticleNumber: () => this.#numParticles,
+        getParticleNumber: () => this.numParticles,
         glScale: this.options.glScale?.() as number,
       });
       this.renderPipeline?.addPass(updatePass);
@@ -358,8 +358,8 @@ export default class BaseLayer {
         texture: composePass.textures.current,
         textureNext: composePass.textures.next,
         getParticles: () => updatePass.textures,
-        getParticleNumber: () => this.#numParticles,
-        maskPass: this.#maskPass,
+        getParticleNumber: () => this.numParticles,
+        maskPass: this.maskPass,
       });
 
       const particlesTexturePass = new ScreenPass('ParticlesTexturePass', this.renderer, {
@@ -407,7 +407,7 @@ export default class BaseLayer {
         textureNext: composePass.textures.next,
         getPixelsToUnits: this.options.getPixelsToUnits,
         getGridTiles: this.options.getGridTiles,
-        maskPass: this.#maskPass,
+        maskPass: this.maskPass,
       });
       this.renderPipeline?.addPass(composePass);
       this.renderPipeline?.addPass(arrowPass);
@@ -447,7 +447,7 @@ export default class BaseLayer {
    * @param opacity
    */
   setOpacity(opacity: number) {
-    this.#opacity = opacity;
+    this.opacity = opacity;
   }
 
   /**
@@ -455,7 +455,7 @@ export default class BaseLayer {
    * @param numParticles
    */
   setNumParticles(numParticles: number) {
-    this.#numParticles = numParticles;
+    this.numParticles = numParticles;
   }
 
   /**
@@ -463,7 +463,7 @@ export default class BaseLayer {
    * @param speedFactor
    */
   setSpeedFactor(speedFactor: number) {
-    this.#speedFactor = speedFactor;
+    this.speedFactor = speedFactor;
   }
 
   /**
@@ -471,7 +471,7 @@ export default class BaseLayer {
    * @param fadeOpacity
    */
   setFadeOpacity(fadeOpacity: number) {
-    this.#fadeOpacity = fadeOpacity;
+    this.fadeOpacity = fadeOpacity;
   }
 
   /**
@@ -479,7 +479,7 @@ export default class BaseLayer {
    * @param dropRate
    */
   setDropRate(dropRate: number) {
-    this.#dropRate = dropRate;
+    this.dropRate = dropRate;
   }
 
   /**
@@ -487,7 +487,7 @@ export default class BaseLayer {
    * @param dropRateBump
    */
   setDropRateBump(dropRateBump: number) {
-    this.#dropRateBump = dropRateBump;
+    this.dropRateBump = dropRateBump;
   }
 
   /**
@@ -495,7 +495,7 @@ export default class BaseLayer {
    * @param space
    */
   setSymbolSpace(space) {
-    this.#space = space;
+    this.space = space;
   }
 
   /**
@@ -503,7 +503,7 @@ export default class BaseLayer {
    * @param size
    */
   setSymbolSize(size) {
-    this.#size = size;
+    this.size = size;
   }
 
   /**
@@ -542,14 +542,14 @@ export default class BaseLayer {
   buildColorRamp() {
     if (!this.options.styleSpec?.['fill-color']) return;
     const { data, colorRange } = createLinearGradient([], this.options.styleSpec?.['fill-color'] as any[]);
-    this.#isRasterize = isRasterize(this.options.styleSpec?.['fill-color']);
+    this.isRasterize = isRasterize(this.options.styleSpec?.['fill-color']);
 
     if (colorRange) {
-      this.#colorRange = new Vector2(...colorRange);
+      this.colorRange = new Vector2(...colorRange);
     }
 
     if (data) {
-      this.#colorRampTexture = new DataTexture(this.renderer, {
+      this.colorRampTexture = new DataTexture(this.renderer, {
         data,
         name: 'colorRampTexture',
         magFilter: this.renderer.gl.NEAREST,
@@ -561,7 +561,7 @@ export default class BaseLayer {
   }
 
   clearStencil() {
-    this.#nextStencilID = 1;
+    this.nextStencilID = 1;
   }
 
   stencilConfigForOverlap(tiles: any[]): [{ [_: number]: any }, Tile[]] {
@@ -569,7 +569,7 @@ export default class BaseLayer {
     const minTileZ = coords[coords.length - 1].overscaledZ;
     const stencilValues = coords[0].overscaledZ - minTileZ + 1;
     if (stencilValues > 1) {
-      if (this.#nextStencilID + stencilValues > 256) {
+      if (this.nextStencilID + stencilValues > 256) {
         this.clearStencil();
       }
       const zToStencilMode = {};
@@ -579,7 +579,7 @@ export default class BaseLayer {
           mask: 0xff,
           func: {
             cmp: this.renderer.gl.GEQUAL,
-            ref: i + this.#nextStencilID,
+            ref: i + this.nextStencilID,
             mask: 0xff,
           },
           op: {
@@ -589,7 +589,7 @@ export default class BaseLayer {
           },
         };
       }
-      this.#nextStencilID += stencilValues;
+      this.nextStencilID += stencilValues;
       return [zToStencilMode, coords];
     }
     return [
@@ -679,31 +679,31 @@ export default class BaseLayer {
     this.options.mask = mask;
 
     if (this.options.mask) {
-      if (!this.#maskPass) {
-        this.#maskPass = new MaskPass('MaskPass', this.renderer, {
+      if (!this.maskPass) {
+        this.maskPass = new MaskPass('MaskPass', this.renderer, {
           mask: this.options.mask,
         });
 
         const raster = this.renderPipeline?.getPass('RasterComposePass');
         if (raster) {
-          raster.setMaskPass(this.#maskPass);
+          raster.setMaskPass(this.maskPass);
         }
         const colorize = this.renderPipeline?.getPass('ColorizeComposePass');
         if (colorize) {
-          colorize.setMaskPass(this.#maskPass);
+          colorize.setMaskPass(this.maskPass);
         }
         const particles = this.renderPipeline?.getPass('ParticlesPass');
         if (particles) {
-          particles.setMaskPass(this.#maskPass);
+          particles.setMaskPass(this.maskPass);
         }
 
         const arrow = this.renderPipeline?.getPass('ArrowPass');
         if (arrow) {
-          arrow.setMaskPass(this.#maskPass);
+          arrow.setMaskPass(this.maskPass);
         }
       }
 
-      this.#maskPass.updateGeometry();
+      this.maskPass.updateGeometry();
 
       this.options?.triggerRepaint?.();
     }
@@ -727,20 +727,20 @@ export default class BaseLayer {
         {
           zoom: this.options?.getZoom?.() ?? 0,
           extent: this.options?.getExtent?.(),
-          opacity: this.#opacity,
-          fadeOpacity: this.#fadeOpacity,
-          numParticles: this.#numParticles,
-          colorRange: this.#colorRange,
-          colorRampTexture: this.#colorRampTexture,
+          opacity: this.opacity,
+          fadeOpacity: this.fadeOpacity,
+          numParticles: this.numParticles,
+          colorRange: this.colorRange,
+          colorRampTexture: this.colorRampTexture,
           sharedState: this.sharedState,
-          u_drop_rate: this.#dropRate,
-          u_drop_rate_bump: this.#dropRateBump,
-          u_speed_factor: this.#speedFactor,
+          u_drop_rate: this.dropRate,
+          u_drop_rate_bump: this.dropRateBump,
+          u_speed_factor: this.speedFactor,
           u_flip_y: this.options.flipY,
           u_gl_scale: this.options.glScale?.(),
           u_zoomScale: this.options.zoomScale?.(),
-          symbolSize: this.#size,
-          symbolSpace: this.#space,
+          symbolSize: this.size,
+          symbolSpace: this.space,
           pixelsToProjUnit: this.options.getPixelsToProjUnit(),
         },
       );
@@ -752,22 +752,22 @@ export default class BaseLayer {
       const state: any = {
         zoom: this.options?.getZoom?.() ?? 0,
         extent: this.options?.getExtent?.(),
-        opacity: this.#opacity,
-        fadeOpacity: this.#fadeOpacity,
-        numParticles: this.#numParticles,
-        colorRange: this.#colorRange,
-        colorRampTexture: this.#colorRampTexture,
+        opacity: this.opacity,
+        fadeOpacity: this.fadeOpacity,
+        numParticles: this.numParticles,
+        colorRange: this.colorRange,
+        colorRampTexture: this.colorRampTexture,
         displayRange: this.options.displayRange,
         useDisplayRange: Boolean(this.options.displayRange),
         sharedState: this.sharedState,
-        u_drop_rate: this.#dropRate,
-        u_drop_rate_bump: this.#dropRateBump,
-        u_speed_factor: this.#speedFactor,
+        u_drop_rate: this.dropRate,
+        u_drop_rate_bump: this.dropRateBump,
+        u_speed_factor: this.speedFactor,
         u_flip_y: this.options.flipY,
         u_gl_scale: this.options.glScale?.(),
         u_zoomScale: this.options.zoomScale?.(),
-        symbolSize: this.#size,
-        symbolSpace: this.#space,
+        symbolSize: this.size,
+        symbolSpace: this.space,
         pixelsToProjUnit: this.options.getPixelsToProjUnit(),
       };
 

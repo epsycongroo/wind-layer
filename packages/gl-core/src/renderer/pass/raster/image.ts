@@ -18,15 +18,15 @@ export interface RasterPassOptions {
  * raster 渲染
  */
 export default class RasterPass extends Pass<RasterPassOptions> {
-  #program: WithNull<Program>;
-  #mesh: WithNull<Mesh>;
-  #geometry: WithNull<Geometry>;
+  private program: WithNull<Program>;
+  private mesh: WithNull<Mesh>;
+  private geometry: WithNull<Geometry>;
   readonly prerender = false;
 
   constructor(id: string, renderer: Renderer, options: RasterPassOptions = {} as RasterPassOptions) {
     super(id, renderer, options);
 
-    this.#program = new Program(renderer, {
+    this.program = new Program(renderer, {
       vertexShader: vert,
       fragmentShader: frag,
       uniforms: {
@@ -47,7 +47,7 @@ export default class RasterPass extends Pass<RasterPassOptions> {
       transparent: true,
     });
 
-    this.#geometry = new Geometry(renderer, {
+    this.geometry = new Geometry(renderer, {
       position: {
         size: 2,
         data: new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]),
@@ -62,10 +62,10 @@ export default class RasterPass extends Pass<RasterPassOptions> {
       },
     });
 
-    this.#mesh = new Mesh(renderer, {
+    this.mesh = new Mesh(renderer, {
       mode: renderer.gl.TRIANGLES,
-      program: this.#program,
-      geometry: this.#geometry,
+      program: this.program,
+      geometry: this.geometry,
     });
   }
 
@@ -77,22 +77,22 @@ export default class RasterPass extends Pass<RasterPassOptions> {
     const attr = this.renderer.attributes;
     this.renderer.setViewport(this.renderer.width * attr.dpr, this.renderer.height * attr.dpr);
     const camera = rendererParams.cameras.planeCamera;
-    if (rendererState && this.#mesh) {
+    if (rendererState && this.mesh) {
       const fade = this.options.source?.getFadeTime?.() || 0;
       const uniforms = utils.pick(rendererState, ['opacity']);
 
       Object.keys(uniforms).forEach((key) => {
         if (uniforms[key] !== undefined) {
-          this.#mesh?.program.setUniform(key, uniforms[key]);
+          this.mesh?.program.setUniform(key, uniforms[key]);
         }
       });
 
-      this.#mesh.program.setUniform('u_fade_t', fade);
+      this.mesh.program.setUniform('u_fade_t', fade);
 
-      this.#mesh.updateMatrix();
-      this.#mesh.worldMatrixNeedsUpdate = false;
-      this.#mesh.worldMatrix.multiply(camera.worldMatrix, this.#mesh.localMatrix);
-      this.#mesh.draw({
+      this.mesh.updateMatrix();
+      this.mesh.worldMatrixNeedsUpdate = false;
+      this.mesh.worldMatrix.multiply(camera.worldMatrix, this.mesh.localMatrix);
+      this.mesh.draw({
         ...rendererParams,
         camera,
       });
@@ -100,18 +100,18 @@ export default class RasterPass extends Pass<RasterPassOptions> {
   }
 
   destroy() {
-    if (this.#mesh) {
-      this.#mesh.destroy();
-      this.#mesh = null;
+    if (this.mesh) {
+      this.mesh.destroy();
+      this.mesh = null;
     }
-    if (this.#program) {
-      this.#program.destroy();
-      this.#program = null;
+    if (this.program) {
+      this.program.destroy();
+      this.program = null;
     }
 
-    if (this.#geometry) {
-      this.#geometry.destroy();
-      this.#geometry = null;
+    if (this.geometry) {
+      this.geometry.destroy();
+      this.geometry = null;
     }
   }
 }

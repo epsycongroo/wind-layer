@@ -26,13 +26,13 @@ const defaultSize = 256;
 export default class ParticlesComposePass extends Pass<ParticlesComposePassOptions> {
   readonly prerender = true;
 
-  #program: WithNull<Program>;
-  #current: WithNull<RenderTarget>;
-  #next: WithNull<RenderTarget>;
-  #uid: string;
+  private program: WithNull<Program>;
+  private current: WithNull<RenderTarget>;
+  private next: WithNull<RenderTarget>;
+  private uid: string;
 
-  #width = defaultSize;
-  #height = defaultSize;
+  private width = defaultSize;
+  private height = defaultSize;
 
   constructor(
     id: string,
@@ -41,9 +41,9 @@ export default class ParticlesComposePass extends Pass<ParticlesComposePassOptio
   ) {
     super(id, renderer, options);
 
-    this.#uid = options.id;
+    this.uid = options.id;
 
-    this.#program = new Program(renderer, {
+    this.program = new Program(renderer, {
       vertexShader: vert,
       fragmentShader: frag,
       uniforms: {
@@ -60,8 +60,8 @@ export default class ParticlesComposePass extends Pass<ParticlesComposePassOptio
 
     // @link https://webgl2fundamentals.org/webgl/lessons/webgl-data-textures.html
     const opt = {
-      width: this.#width,
-      height: this.#height,
+      width: this.width,
+      height: this.height,
       minFilter: renderer.gl.NEAREST,
       magFilter: renderer.gl.NEAREST,
       type: this.renderer.gl.FLOAT,
@@ -73,29 +73,29 @@ export default class ParticlesComposePass extends Pass<ParticlesComposePassOptio
       stencil: true,
     };
 
-    this.#current = new RenderTarget(renderer, {
+    this.current = new RenderTarget(renderer, {
       ...opt,
       name: 'currentRenderTargetTexture',
     });
-    this.#next = new RenderTarget(renderer, {
+    this.next = new RenderTarget(renderer, {
       ...opt,
       name: 'nextRenderTargetTexture',
     });
   }
 
   resize(width: number, height: number) {
-    if (width !== this.#width || height !== this.#height) {
-      this.#current?.resize(width, height);
-      this.#next?.resize(width, height);
-      this.#width = width;
-      this.#height = height;
+    if (width !== this.width || height !== this.height) {
+      this.current?.resize(width, height);
+      this.next?.resize(width, height);
+      this.width = width;
+      this.height = height;
     }
   }
 
   get textures() {
     return {
-      current: this.#current?.texture,
-      next: this.#next?.texture,
+      current: this.current?.texture,
+      next: this.next?.texture,
     };
   }
 
@@ -197,7 +197,7 @@ export default class ParticlesComposePass extends Pass<ParticlesComposePassOptio
         const tileBBox = coord.getTileProjBounds();
         if (!tileBBox) continue;
 
-        const tileMesh = tile.createMesh(this.#uid, tileBBox, this.renderer, this.#program);
+        const tileMesh = tile.createMesh(this.uid, tileBBox, this.renderer, this.program);
         const mesh = tileMesh.planeMesh;
 
         const scale = Math.pow(2, zmax - coord.z);
@@ -259,32 +259,32 @@ export default class ParticlesComposePass extends Pass<ParticlesComposePassOptio
     const sourceCache = source.sourceCache;
     if (Array.isArray(sourceCache)) {
       if (sourceCache.length === 2) {
-        this.renderTexture(this.#current, rendererParams, rendererState, sourceCache[0]);
-        this.renderTexture(this.#next, rendererParams, rendererState, sourceCache[1]);
+        this.renderTexture(this.current, rendererParams, rendererState, sourceCache[0]);
+        this.renderTexture(this.next, rendererParams, rendererState, sourceCache[1]);
       } else {
-        this.renderTexture(this.#current, rendererParams, rendererState, sourceCache[0]);
-        this.renderTexture(this.#next, rendererParams, rendererState, sourceCache[0]);
+        this.renderTexture(this.current, rendererParams, rendererState, sourceCache[0]);
+        this.renderTexture(this.next, rendererParams, rendererState, sourceCache[0]);
       }
     } else {
-      this.renderTexture(this.#current, rendererParams, rendererState, sourceCache);
-      this.renderTexture(this.#next, rendererParams, rendererState, sourceCache);
+      this.renderTexture(this.current, rendererParams, rendererState, sourceCache);
+      this.renderTexture(this.next, rendererParams, rendererState, sourceCache);
     }
   }
 
   destroy() {
-    if (this.#program) {
-      this.#program.destroy();
-      this.#program = null;
+    if (this.program) {
+      this.program.destroy();
+      this.program = null;
     }
 
-    if (this.#current) {
-      this.#current.destroy();
-      this.#current = null;
+    if (this.current) {
+      this.current.destroy();
+      this.current = null;
     }
 
-    if (this.#next) {
-      this.#next.destroy();
-      this.#next = null;
+    if (this.next) {
+      this.next.destroy();
+      this.next = null;
     }
   }
 }

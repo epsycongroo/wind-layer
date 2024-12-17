@@ -26,19 +26,19 @@ const TILE_EXTENT = 4096.0;
  * 用于测试 compose pass 合并是否正确
  */
 export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
-  #mesh: WithNull<Mesh>;
-  #program: WithNull<Program>;
-  #geometry: WithNull<Geometry>;
-  #vertexArray: Float32Array;
-  #lastTileSize: number;
-  #lastSpace: number;
+  private mesh: WithNull<Mesh>;
+  private program: WithNull<Program>;
+  private geometry: WithNull<Geometry>;
+  private vertexArray: Float32Array;
+  private lastTileSize: number;
+  private lastSpace: number;
 
   readonly prerender = false;
 
   constructor(id: string, renderer: Renderer, options: ComposeRenderPassOptions = {} as ComposeRenderPassOptions) {
     super(id, renderer, options);
 
-    this.#program = new Program(renderer, {
+    this.program = new Program(renderer, {
       vertexShader: vert,
       fragmentShader: frag,
       uniforms: {
@@ -66,9 +66,9 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
       transparent: true,
     });
 
-    this.#mesh = new Mesh(this.renderer, {
+    this.mesh = new Mesh(this.renderer, {
       mode: this.renderer.gl.TRIANGLES,
-      program: this.#program,
+      program: this.program,
       geometry: new Geometry(this.renderer, {
         index: {
           size: 1,
@@ -96,9 +96,9 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
   }
 
   createTileVertexArray(tileSize: number, space = 20) {
-    if (!this.#vertexArray || tileSize !== this.#lastTileSize || space !== this.#lastSpace) {
-      this.#lastTileSize = tileSize;
-      this.#lastSpace = space;
+    if (!this.vertexArray || tileSize !== this.lastTileSize || space !== this.lastSpace) {
+      this.lastTileSize = tileSize;
+      this.lastSpace = space;
       const column = Math.round(tileSize / space);
 
       const columnUnit = 1 / column;
@@ -115,7 +115,7 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
         }
       }
 
-      this.#vertexArray = new Float32Array(points.length * 2);
+      this.vertexArray = new Float32Array(points.length * 2);
 
       for (let i = 0; i < points.length; i++) {
         const point = points[i];
@@ -124,8 +124,8 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
           y: Math.round(point.y),
         };
         if (pos.x < 0 || pos.x >= TILE_EXTENT || pos.y < 0 || pos.y >= TILE_EXTENT) continue;
-        this.#vertexArray[2 * i] = pos.x / TILE_EXTENT;
-        this.#vertexArray[2 * i + 1] = pos.y / TILE_EXTENT;
+        this.vertexArray[2 * i] = pos.x / TILE_EXTENT;
+        this.vertexArray[2 * i + 1] = pos.y / TILE_EXTENT;
       }
 
       const geometry = new Geometry(this.renderer, {
@@ -143,7 +143,7 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
         // },
         // coords: {
         //   divisor: 1,
-        //   data: this.#vertexArray,
+        //   data: this.vertexArray,
         //   offset: 0,
         //   size: 2,
         //   stride: 8,
@@ -162,12 +162,12 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
         },
       });
 
-      if (this.#mesh) {
-        this.#mesh.updateGeometry(geometry, true);
+      if (this.mesh) {
+        this.mesh.updateGeometry(geometry, true);
       }
     }
 
-    return this.#vertexArray;
+    return this.vertexArray;
   }
 
   /**
@@ -187,7 +187,7 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
       stencil = this.maskPass.render(rendererParams, rendererState);
     }
 
-    if (rendererState && this.#mesh && tiles && tiles.length > 0) {
+    if (rendererState && this.mesh && tiles && tiles.length > 0) {
       const uniforms = utils.pick(rendererState, [
         'opacity',
         'colorRange',
@@ -213,36 +213,36 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
 
         Object.keys(uniforms).forEach((key) => {
           if (uniforms[key] !== undefined) {
-            this.#mesh?.program.setUniform(key, uniforms[key]);
+            this.mesh?.program.setUniform(key, uniforms[key]);
           }
         });
 
         const fade = this.options.source?.getFadeTime?.() || 0;
-        this.#mesh.program.setUniform(
+        this.mesh.program.setUniform(
           'u_image_res',
           new Vector2(this.options.texture.width, this.options.texture.height),
         );
-        this.#mesh.program.setUniform('u_fade_t', fade);
-        this.#mesh.program.setUniform('arrowSize', rendererState.symbolSize);
-        this.#mesh.program.setUniform('pixelsToProjUnit', new Vector2(pixelToUnits, pixelToUnits));
-        this.#mesh.program.setUniform('u_bbox', rendererState.extent);
-        this.#mesh.program.setUniform('u_data_bbox', dataBounds);
-        this.#mesh.program.setUniform(
+        this.mesh.program.setUniform('u_fade_t', fade);
+        this.mesh.program.setUniform('arrowSize', rendererState.symbolSize);
+        this.mesh.program.setUniform('pixelsToProjUnit', new Vector2(pixelToUnits, pixelToUnits));
+        this.mesh.program.setUniform('u_bbox', rendererState.extent);
+        this.mesh.program.setUniform('u_data_bbox', dataBounds);
+        this.mesh.program.setUniform(
           'u_tile_bbox',
           rendererState.u_flip_y
             ? [bounds.left, bounds.bottom, bounds.right, bounds.top]
             : [bounds.left, bounds.top, bounds.right, bounds.bottom],
         );
-        this.#mesh.program.setUniform('u_head', 0.1);
-        this.#mesh.program.setUniform('u_devicePixelRatio', attr.dpr);
-        this.#mesh.program.setUniform('u_texture', this.options.texture);
-        this.#mesh.program.setUniform('u_textureNext', this.options.textureNext);
-        this.#mesh.program.setUniform('u_flip_y', rendererState.u_flip_y);
+        this.mesh.program.setUniform('u_head', 0.1);
+        this.mesh.program.setUniform('u_devicePixelRatio', attr.dpr);
+        this.mesh.program.setUniform('u_texture', this.options.texture);
+        this.mesh.program.setUniform('u_textureNext', this.options.textureNext);
+        this.mesh.program.setUniform('u_flip_y', rendererState.u_flip_y);
 
-        this.#mesh.updateMatrix();
-        this.#mesh.worldMatrixNeedsUpdate = false;
-        this.#mesh.worldMatrix.multiply(rendererParams.scene.worldMatrix, this.#mesh.localMatrix);
-        this.#mesh.draw({
+        this.mesh.updateMatrix();
+        this.mesh.worldMatrixNeedsUpdate = false;
+        this.mesh.worldMatrix.multiply(rendererParams.scene.worldMatrix, this.mesh.localMatrix);
+        this.mesh.draw({
           ...rendererParams,
           camera,
         });
@@ -255,19 +255,19 @@ export default class ComposeRenderPass extends Pass<ComposeRenderPassOptions> {
   }
 
   destroy() {
-    if (this.#mesh) {
-      this.#mesh.destroy();
-      this.#mesh = null;
+    if (this.mesh) {
+      this.mesh.destroy();
+      this.mesh = null;
     }
 
-    if (this.#program) {
-      this.#program.destroy();
-      this.#program = null;
+    if (this.program) {
+      this.program.destroy();
+      this.program = null;
     }
 
-    if (this.#geometry) {
-      this.#geometry.destroy();
-      this.#geometry = null;
+    if (this.geometry) {
+      this.geometry.destroy();
+      this.geometry = null;
     }
   }
 }

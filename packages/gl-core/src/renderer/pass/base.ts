@@ -11,7 +11,7 @@ export default class Pass<T> {
 
   public maskPass: any;
 
-  #enabled = true;
+  private _enabled = true;
 
   constructor(id: string, renderer: Renderer, options: T = {} as T) {
     this.id = id;
@@ -22,11 +22,11 @@ export default class Pass<T> {
   }
 
   get enabled() {
-    return this.#enabled;
+    return this._enabled;
   }
 
   set enabled(state) {
-    this.#enabled = state;
+    this._enabled = state;
   }
 
   setMaskPass(pass) {

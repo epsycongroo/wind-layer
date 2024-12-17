@@ -26,7 +26,7 @@ export default class SourceCache extends EventEmitter {
     [key: string]: Tile;
   };
 
-  #cache: LRUCache<Tile>;
+  private cache: LRUCache<Tile>;
 
   /**
    * 这两个配置是用于控制瓦片数据的最大缩放级别的。
@@ -44,7 +44,7 @@ export default class SourceCache extends EventEmitter {
     this.cacheTiles = {};
     this.coveredTiles = {};
     this.loadedParentTiles = {};
-    this.#cache = new LRUCache(0, this.unloadTile.bind(this));
+    this.cache = new LRUCache(0, this.unloadTile.bind(this));
   }
 
   /**
@@ -152,7 +152,7 @@ export default class SourceCache extends EventEmitter {
 
     // 目前问题在于，跨世界的瓦片在执行过一次缓存获取后会被移除，后续瓦片无法再从缓存中
     // 取到，这就造成了需要重复请求的问题
-    tile = this.#cache.getAndRemove(tileID.tileKey);
+    tile = this.cache.getAndRemove(tileID.tileKey);
     if (tile) {
       tile.tileID = tileID;
     }
@@ -188,7 +188,7 @@ export default class SourceCache extends EventEmitter {
     if (tile.uses > 0) return;
 
     if (tile.hasData() && tile.state !== TileState.reloading) {
-      this.#cache.add(tile.tileID.tileKey, tile);
+      this.cache.add(tile.tileID.tileKey, tile);
     } else {
       tile.aborted = true;
       this.abortTile(tile);
@@ -386,7 +386,7 @@ export default class SourceCache extends EventEmitter {
     if (tile && tile.hasData()) {
       return tile;
     }
-    return this.#cache.get(tileID.tileKey);
+    return this.cache.get(tileID.tileKey);
   }
 
   /**
@@ -429,7 +429,7 @@ export default class SourceCache extends EventEmitter {
         ? Math.max(this.source.options.maxTileCacheSize, viewDependentMaxSize)
         : viewDependentMaxSize;
 
-    this.#cache.setMaxSize(maxSize);
+    this.cache.setMaxSize(maxSize);
   }
 
   update(wrapTiles) {
@@ -498,7 +498,7 @@ export default class SourceCache extends EventEmitter {
    * 重载当前视野内的瓦片（需要移除缓存）
    */
   reload() {
-    this.#cache.reset();
+    this.cache.reset();
 
     for (const key in this.cacheTiles) {
       this._reloadTile(key, TileState.reloading);
@@ -526,7 +526,7 @@ export default class SourceCache extends EventEmitter {
       this._removeTile(id);
     }
 
-    this.#cache.reset();
+    this.cache.reset();
   }
 
   /**
@@ -560,6 +560,6 @@ export default class SourceCache extends EventEmitter {
       this._removeTile(id);
     }
 
-    this.#cache.reset();
+    this.cache.reset();
   }
 }

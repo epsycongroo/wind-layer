@@ -19,18 +19,18 @@ export interface PickerPassOptions {
 export default class PickerPass extends Pass<PickerPassOptions> {
   readonly prerender = true;
 
-  #program: WithNull<Program>;
-  #mesh: WithNull<Mesh>;
-  #geometry: WithNull<Geometry>;
-  #picker: WithNull<RenderTarget>;
+  private program: WithNull<Program>;
+  private mesh: WithNull<Mesh>;
+  private geometry: WithNull<Geometry>;
+  private picker: WithNull<RenderTarget>;
 
-  #rendererParams: any;
-  #rendererState: any;
+  private rendererParams: any;
+  private rendererState: any;
 
   constructor(id: string, renderer: Renderer, options: PickerPassOptions = {} as PickerPassOptions) {
     super(id, renderer, options);
 
-    this.#program = new Program(renderer, {
+    this.program = new Program(renderer, {
       vertexShader: vert,
       fragmentShader: frag,
       uniforms: {
@@ -48,7 +48,7 @@ export default class PickerPass extends Pass<PickerPassOptions> {
       transparent: true,
     });
 
-    this.#geometry = new Geometry(renderer, {
+    this.geometry = new Geometry(renderer, {
       position: {
         size: 2,
         data: new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]),
@@ -63,10 +63,10 @@ export default class PickerPass extends Pass<PickerPassOptions> {
       },
     });
 
-    this.#mesh = new Mesh(renderer, {
+    this.mesh = new Mesh(renderer, {
       mode: renderer.gl.TRIANGLES,
-      program: this.#program,
-      geometry: this.#geometry,
+      program: this.program,
+      geometry: this.geometry,
     });
 
     // @link https://webgl2fundamentals.org/webgl/lessons/webgl-data-textures.html
@@ -89,14 +89,14 @@ export default class PickerPass extends Pass<PickerPassOptions> {
         : this.renderer.gl.RGBA;
     }
 
-    this.#picker = new RenderTarget(renderer, {
+    this.picker = new RenderTarget(renderer, {
       ...opt,
       name: 'pickerRenderTargetTexture',
     });
   }
 
   resize(width: number, height: number) {
-    this.#picker?.resize(width, height);
+    this.picker?.resize(width, height);
   }
 
   /**
@@ -104,24 +104,24 @@ export default class PickerPass extends Pass<PickerPassOptions> {
    * @param rendererState
    * @param pixel
    */
-  render(rendererParams = this.#rendererParams, rendererState = this.#rendererState, pixel) {
+  render(rendererParams = this.rendererParams, rendererState = this.rendererState, pixel) {
     return new Promise((resolve) => {
-      if (!this.#picker || !this.#mesh) return resolve(null);
-      this.#rendererParams = this.#rendererParams !== rendererParams ? rendererParams : this.#rendererParams;
-      this.#rendererState = this.#rendererState !== rendererState ? rendererState : this.#rendererState;
+      if (!this.picker || !this.mesh) return resolve(null);
+      this.rendererParams = this.rendererParams !== rendererParams ? rendererParams : this.rendererParams;
+      this.rendererState = this.rendererState !== rendererState ? rendererState : this.rendererState;
       const camera = rendererParams.cameras.planeCamera;
-      this.#picker.clear();
-      this.#picker.bind();
-      this.renderer.setViewport(this.#picker.width, this.#picker.height);
+      this.picker.clear();
+      this.picker.bind();
+      this.renderer.setViewport(this.picker.width, this.picker.height);
       if (rendererState) {
         const fade = this.options.source?.getFadeTime?.() || 0;
 
-        this.#mesh.program.setUniform('u_fade_t', fade);
+        this.mesh.program.setUniform('u_fade_t', fade);
 
-        this.#mesh.updateMatrix();
-        this.#mesh.worldMatrixNeedsUpdate = false;
-        this.#mesh.worldMatrix.multiply(camera.worldMatrix, this.#mesh.localMatrix);
-        this.#mesh.draw({
+        this.mesh.updateMatrix();
+        this.mesh.worldMatrixNeedsUpdate = false;
+        this.mesh.worldMatrix.multiply(camera.worldMatrix, this.mesh.localMatrix);
+        this.mesh.draw({
           ...rendererParams,
           camera,
         });
@@ -144,29 +144,29 @@ export default class PickerPass extends Pass<PickerPassOptions> {
       } else {
         resolve(null);
       }
-      this.#picker.unbind();
+      this.picker.unbind();
     });
   }
 
   destroy() {
-    if (this.#mesh) {
-      this.#mesh.destroy();
-      this.#mesh = null;
+    if (this.mesh) {
+      this.mesh.destroy();
+      this.mesh = null;
     }
 
-    if (this.#program) {
-      this.#program.destroy();
-      this.#program = null;
+    if (this.program) {
+      this.program.destroy();
+      this.program = null;
     }
 
-    if (this.#geometry) {
-      this.#geometry.destroy();
-      this.#geometry = null;
+    if (this.geometry) {
+      this.geometry.destroy();
+      this.geometry = null;
     }
 
-    if (this.#picker) {
-      this.#picker.destroy();
-      this.#picker = null;
+    if (this.picker) {
+      this.picker.destroy();
+      this.picker = null;
     }
   }
 }

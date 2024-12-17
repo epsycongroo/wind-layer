@@ -26,22 +26,22 @@ export interface ParticlesPassOptions {
  * 着色
  */
 export default class Particles extends Pass<ParticlesPassOptions> {
-  #prerender = true;
+  private _prerender = true;
 
   public particleStateResolution: number;
 
-  #privateNumParticles: number;
-  #program: WithNull<Program>;
-  #mesh: WithNull<Mesh>;
-  #geometry: WithNull<Geometry>;
-  #screenTexture: WithNull<RenderTarget>;
-  #backgroundTexture: WithNull<RenderTarget>;
+  private privateNumParticles: number;
+  private program: WithNull<Program>;
+  private mesh: WithNull<Mesh>;
+  private geometry: WithNull<Geometry>;
+  private screenTexture: WithNull<RenderTarget>;
+  private backgroundTexture: WithNull<RenderTarget>;
 
   constructor(id: string, renderer: Renderer, options: ParticlesPassOptions = {} as ParticlesPassOptions) {
     super(id, renderer, options);
 
     this.initializeRenderTarget();
-    this.#program = new Program(renderer, {
+    this.program = new Program(renderer, {
       vertexShader: vert,
       fragmentShader: frag,
       uniforms: {
@@ -83,7 +83,7 @@ export default class Particles extends Pass<ParticlesPassOptions> {
 
     const { particleIndices, particleReferences } = this.getParticleBuffer();
 
-    this.#geometry = new Geometry(renderer, {
+    this.geometry = new Geometry(renderer, {
       a_index: {
         size: 1,
         data: particleIndices,
@@ -94,42 +94,42 @@ export default class Particles extends Pass<ParticlesPassOptions> {
       },
     });
 
-    this.#mesh = new Mesh(renderer, {
+    this.mesh = new Mesh(renderer, {
       mode: renderer.gl.POINTS,
-      program: this.#program,
-      geometry: this.#geometry,
+      program: this.program,
+      geometry: this.geometry,
     });
   }
 
   get prerender() {
-    return this.#prerender;
+    return this._prerender;
   }
 
   set prerender(prerender) {
-    this.#prerender = prerender;
+    this._prerender = prerender;
   }
 
   get textures() {
     return {
-      screenTexture: this.#screenTexture?.texture,
-      backgroundTexture: this.#backgroundTexture?.texture,
+      screenTexture: this.screenTexture?.texture,
+      backgroundTexture: this.backgroundTexture?.texture,
     };
   }
 
   get renderTarget() {
-    return this.#prerender && this.#screenTexture;
+    return this._prerender && this.screenTexture;
   }
 
   resetParticles() {
-    this.#screenTexture?.clear();
-    this.#backgroundTexture?.clear();
+    this.screenTexture?.clear();
+    this.backgroundTexture?.clear();
   }
 
   getParticleBuffer() {
     const particleRes = Math.ceil(Math.sqrt(this.options.getParticleNumber()));
     this.particleStateResolution = particleRes;
-    this.#privateNumParticles = particleRes * particleRes;
-    const indexCount = this.#privateNumParticles;
+    this.privateNumParticles = particleRes * particleRes;
+    const indexCount = this.privateNumParticles;
     const particleIndices = new Float32Array(indexCount);
     const particleReferences = new Float32Array(indexCount * 2);
 
@@ -159,11 +159,11 @@ export default class Particles extends Pass<ParticlesPassOptions> {
       premultipliedAlpha: false,
     };
 
-    this.#screenTexture = new RenderTarget(this.renderer, {
+    this.screenTexture = new RenderTarget(this.renderer, {
       ...opt,
       name: 'screenTexture',
     });
-    this.#backgroundTexture = new RenderTarget(this.renderer, {
+    this.backgroundTexture = new RenderTarget(this.renderer, {
       ...opt,
       name: 'backgroundTexture',
     });
@@ -173,7 +173,7 @@ export default class Particles extends Pass<ParticlesPassOptions> {
    * 交换 RenderTarget
    */
   swapRenderTarget() {
-    [this.#screenTexture, this.#backgroundTexture] = [this.#backgroundTexture, this.#screenTexture];
+    [this.screenTexture, this.backgroundTexture] = [this.backgroundTexture, this.screenTexture];
   }
 
   /**
@@ -196,35 +196,35 @@ export default class Particles extends Pass<ParticlesPassOptions> {
       stencil = this.maskPass.render(rendererParams, rendererState);
     }
 
-    if (rendererState && this.#mesh) {
-      this.#mesh.program.setUniform(
+    if (rendererState && this.mesh) {
+      this.mesh.program.setUniform(
         'u_image_res',
         new Vector2(this.options.texture.width, this.options.texture.height),
       );
       const fade = this.options.source?.getFadeTime?.() || 0;
-      this.#mesh.program.setUniform('u_fade_t', fade);
-      this.#mesh.program.setUniform('u_colorRamp', rendererState.colorRampTexture);
-      this.#mesh.program.setUniform('u_colorRange', rendererState.colorRange);
+      this.mesh.program.setUniform('u_fade_t', fade);
+      this.mesh.program.setUniform('u_colorRamp', rendererState.colorRampTexture);
+      this.mesh.program.setUniform('u_colorRange', rendererState.colorRange);
 
       const particleTextures = this.options.getParticles();
 
-      this.#mesh.program.setUniform('u_particles', particleTextures.currentParticles);
-      this.#mesh.program.setUniform('u_particles_next', particleTextures.nextParticles);
-      this.#mesh.program.setUniform('u_particlesRes', this.#privateNumParticles);
+      this.mesh.program.setUniform('u_particles', particleTextures.currentParticles);
+      this.mesh.program.setUniform('u_particles_next', particleTextures.nextParticles);
+      this.mesh.program.setUniform('u_particlesRes', this.privateNumParticles);
 
       const sharedState = rendererState.sharedState;
 
-      this.#mesh.program.setUniform('u_bbox', rendererState.extent);
-      this.#mesh.program.setUniform('u_data_bbox', sharedState.u_data_bbox);
+      this.mesh.program.setUniform('u_bbox', rendererState.extent);
+      this.mesh.program.setUniform('u_data_bbox', sharedState.u_data_bbox);
 
-      this.#mesh.program.setUniform('u_flip_y', rendererState.u_flip_y);
-      this.#mesh.program.setUniform('u_gl_scale', rendererState.u_gl_scale);
+      this.mesh.program.setUniform('u_flip_y', rendererState.u_flip_y);
+      this.mesh.program.setUniform('u_gl_scale', rendererState.u_gl_scale);
 
-      this.#mesh.updateMatrix();
-      this.#mesh.worldMatrixNeedsUpdate = false;
-      this.#mesh.worldMatrix.multiply(rendererParams.scene.worldMatrix, this.#mesh.localMatrix);
+      this.mesh.updateMatrix();
+      this.mesh.worldMatrixNeedsUpdate = false;
+      this.mesh.worldMatrix.multiply(rendererParams.scene.worldMatrix, this.mesh.localMatrix);
 
-      this.#mesh.draw({
+      this.mesh.draw({
         ...rendererParams,
         camera,
       });
@@ -240,29 +240,29 @@ export default class Particles extends Pass<ParticlesPassOptions> {
   }
 
   destroy() {
-    if (this.#mesh) {
-      this.#mesh.destroy();
-      this.#mesh = null;
+    if (this.mesh) {
+      this.mesh.destroy();
+      this.mesh = null;
     }
 
-    if (this.#program) {
-      this.#program.destroy();
-      this.#program = null;
+    if (this.program) {
+      this.program.destroy();
+      this.program = null;
     }
 
-    if (this.#geometry) {
-      this.#geometry.destroy();
-      this.#geometry = null;
+    if (this.geometry) {
+      this.geometry.destroy();
+      this.geometry = null;
     }
 
-    if (this.#screenTexture) {
-      this.#screenTexture.destroy();
-      this.#screenTexture = null;
+    if (this.screenTexture) {
+      this.screenTexture.destroy();
+      this.screenTexture = null;
     }
 
-    if (this.#backgroundTexture) {
-      this.#backgroundTexture.destroy();
-      this.#backgroundTexture = null;
+    if (this.backgroundTexture) {
+      this.backgroundTexture.destroy();
+      this.backgroundTexture = null;
     }
   }
 }

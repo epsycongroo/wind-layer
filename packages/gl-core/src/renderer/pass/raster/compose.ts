@@ -24,16 +24,16 @@ export interface ComposePassOptions {
 export default class ComposePass extends Pass<ComposePassOptions> {
   readonly prerender = true;
 
-  #program: WithNull<Program>;
-  #current: WithNull<RenderTarget>;
-  #next: WithNull<RenderTarget>;
-  #uid: string;
+  private program: WithNull<Program>;
+  private current: WithNull<RenderTarget>;
+  private next: WithNull<RenderTarget>;
+  private uid: string;
   constructor(id: string, renderer: Renderer, options: ComposePassOptions = {} as ComposePassOptions) {
     super(id, renderer, options);
 
-    this.#uid = utils.uid('ComposePass');
+    this.uid = utils.uid('ComposePass');
 
-    this.#program = new Program(renderer, {
+    this.program = new Program(renderer, {
       vertexShader: vert,
       fragmentShader: frag,
       uniforms: {
@@ -57,25 +57,25 @@ export default class ComposePass extends Pass<ComposePassOptions> {
       stencil: true,
     };
 
-    this.#current = new RenderTarget(renderer, {
+    this.current = new RenderTarget(renderer, {
       ...opt,
       name: 'currentRenderTargetTexture',
     });
-    this.#next = new RenderTarget(renderer, {
+    this.next = new RenderTarget(renderer, {
       ...opt,
       name: 'nextRenderTargetTexture',
     });
   }
 
   resize(width: number, height: number) {
-    this.#current?.resize(width, height);
-    this.#next?.resize(width, height);
+    this.current?.resize(width, height);
+    this.next?.resize(width, height);
   }
 
   get textures() {
     return {
-      current: this.#current?.texture,
-      next: this.#next?.texture,
+      current: this.current?.texture,
+      next: this.next?.texture,
     };
   }
 
@@ -113,7 +113,7 @@ export default class ComposePass extends Pass<ComposePassOptions> {
         if (!(tile && tile.hasData())) continue;
         const bbox = coord.getTileProjBounds();
         if (!bbox) continue;
-        const tileMesh = tile.createMesh(this.#uid, bbox, this.renderer, this.#program);
+        const tileMesh = tile.createMesh(this.uid, bbox, this.renderer, this.program);
         const mesh = tileMesh.getMesh();
 
         for (const [index, texture] of tile.textures) {
@@ -176,29 +176,29 @@ export default class ComposePass extends Pass<ComposePassOptions> {
     const sourceCache = source.sourceCache;
     if (Array.isArray(sourceCache)) {
       if (sourceCache.length === 2) {
-        this.renderTexture(this.#current, rendererParams, rendererState, sourceCache[0]);
-        this.renderTexture(this.#next, rendererParams, rendererState, sourceCache[1]);
+        this.renderTexture(this.current, rendererParams, rendererState, sourceCache[0]);
+        this.renderTexture(this.next, rendererParams, rendererState, sourceCache[1]);
       } else {
-        this.renderTexture(this.#current, rendererParams, rendererState, sourceCache[0]);
+        this.renderTexture(this.current, rendererParams, rendererState, sourceCache[0]);
       }
     } else {
-      this.renderTexture(this.#current, rendererParams, rendererState, sourceCache);
+      this.renderTexture(this.current, rendererParams, rendererState, sourceCache);
     }
   }
 
   destroy() {
-    if (this.#current) {
-      this.#current.destroy();
-      this.#current = null;
+    if (this.current) {
+      this.current.destroy();
+      this.current = null;
     }
-    if (this.#next) {
-      this.#next.destroy();
-      this.#next = null;
+    if (this.next) {
+      this.next.destroy();
+      this.next = null;
     }
 
-    if (this.#program) {
-      this.#program.destroy();
-      this.#program = null;
+    if (this.program) {
+      this.program.destroy();
+      this.program = null;
     }
   }
 }

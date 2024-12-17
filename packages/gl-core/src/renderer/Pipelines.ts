@@ -1,7 +1,7 @@
 import type { Renderer } from '@sakitam-gis/vis-engine';
 
 export default class Pipelines {
-  #passes: any[] = [];
+  private _passes: any[] = [];
 
   public enabled: boolean;
   public renderer: Renderer;
@@ -12,7 +12,7 @@ export default class Pipelines {
   }
 
   get passes() {
-    return this.#passes;
+    return this._passes;
   }
 
   get length() {
@@ -20,36 +20,36 @@ export default class Pipelines {
   }
 
   resize(width: number, height: number) {
-    const len = this.#passes.length;
+    const len = this._passes.length;
     for (let i = 0; i < len; i++) {
-      const pass = this.#passes[i];
+      const pass = this._passes[i];
       pass.resize?.(width, height);
     }
   }
 
   addPass(pass) {
-    this.#passes.push(pass);
+    this._passes.push(pass);
   }
 
   removePass(pass) {
-    const idx = this.#passes.indexOf(pass);
+    const idx = this._passes.indexOf(pass);
     if (idx > -1) {
-      this.#passes.splice(pass, 1);
+      this._passes.splice(pass, 1);
       pass.destroy();
     }
   }
 
   removePasses() {
-    this.#passes.forEach((pass) => pass.destroy());
-    this.#passes = [];
+    this._passes.forEach((pass) => pass.destroy());
+    this._passes = [];
   }
 
   getPass(id) {
-    return this.#passes.find((pass) => pass.id === id);
+    return this._passes.find((pass) => pass.id === id);
   }
 
   prerender(rendererParams, rendererState) {
-    const passes = this.#passes.filter((p) => p.enabled && p.prerender === true);
+    const passes = this._passes.filter((p) => p.enabled && p.prerender === true);
     if (passes.length > 0) {
       const len = passes.length;
       for (let i = 0; i < len; i++) {
@@ -61,7 +61,7 @@ export default class Pipelines {
   }
 
   render(rendererParams, rendererState) {
-    const passes = this.#passes.filter((p) => p.enabled && p.prerender !== true);
+    const passes = this._passes.filter((p) => p.enabled && p.prerender !== true);
     if (passes.length > 0) {
       const len = passes.length;
       for (let i = 0; i < len; i++) {
@@ -73,6 +73,6 @@ export default class Pipelines {
   }
 
   destroy() {
-    this.#passes.forEach((pass) => pass.destroy());
+    this._passes.forEach((pass) => pass.destroy());
   }
 }

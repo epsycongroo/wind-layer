@@ -74,7 +74,7 @@ export default class Tile {
 
   request: Map<string, any>;
 
-  #textures: Map<number, Texture> = new Map();
+  private _textures: Map<number, Texture> = new Map();
 
   /**
    * @param tileID
@@ -116,7 +116,7 @@ export default class Tile {
   }
 
   get textures() {
-    return this.#textures;
+    return this._textures;
   }
 
   get tileCenter() {
@@ -212,7 +212,7 @@ export default class Tile {
    * @param userData
    */
   setTextures(renderer: Renderer, index: number, image: any, parseOptions: ParseOptionsType, userData?: any) {
-    const texture = this.#textures.get(index);
+    const texture = this._textures.get(index);
     const iib = isImageBitmap(image) || image instanceof Image;
 
     let dataRange;
@@ -229,7 +229,7 @@ export default class Tile {
       }
       texture.setData(iib ? image : image.data);
     } else {
-      this.#textures.set(
+      this._textures.set(
         index,
         new Texture(renderer, {
           userData: dataRange
@@ -272,7 +272,7 @@ export default class Tile {
   }
 
   copy(tile: Tile) {
-    this.#textures = tile.textures;
+    this._textures = tile.textures;
     this.actor = tile.actor;
     this.state = tile.state !== TileState.errored ? TileState.loaded : TileState.errored;
     this.request = tile.request;
@@ -284,12 +284,12 @@ export default class Tile {
    * 释放瓦片资源
    */
   destroy() {
-    for (const [, value] of this.#textures) {
+    for (const [, value] of this._textures) {
       if (value) {
         value?.destroy();
       }
     }
-    this.#textures.clear();
+    this._textures.clear();
 
     for (const [, value] of this.geometries) {
       if (value) {

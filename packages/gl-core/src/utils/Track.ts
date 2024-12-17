@@ -68,20 +68,20 @@ export const defaultTrackOptions = {
 const trackManger = getTrackManger();
 
 export default class Track extends EventEmitter {
-  #playing = false;
-  #state = State.initial;
-  #elapsedTime = -1;
-  #lastTime = -1;
-  #options: Required<TrackOptions>;
+  private playing = false;
+  private _state = State.initial;
+  private _elapsedTime = -1;
+  private lastTime = -1;
+  private options: Required<TrackOptions>;
 
   constructor(options: TrackOptions) {
     super();
-    this.#options = {
+    this.options = {
       ...defaultTrackOptions,
       ...options,
     };
 
-    if (this.#options.autoplay) {
+    if (this.options.autoplay) {
       this.play();
     }
   }
@@ -90,36 +90,36 @@ export default class Track extends EventEmitter {
    * 获取当前 Track 的状态
    */
   get state() {
-    return this.#state;
+    return this._state;
   }
 
   /**
    * 获取总的过渡时间
    */
   get totalDuration() {
-    return this.#options.delay + this.#options.duration + this.#options.endDelay;
+    return this.options.delay + this.options.duration + this.options.endDelay;
   }
 
   get elapsedTime() {
-    return this.#elapsedTime;
+    return this._elapsedTime;
   }
 
   get totalPosition() {
-    return Math.max(0, Math.min(1, this.#elapsedTime / this.totalDuration));
+    return Math.max(0, Math.min(1, this._elapsedTime / this.totalDuration));
   }
 
   /**
    * 是否在播放
    */
   get isPlaying() {
-    return this.#state === State.playing;
+    return this.state === State.playing;
   }
 
   /**
    * 是否暂停
    */
   get isPaused() {
-    return this.#state === State.paused;
+    return this.state === State.paused;
   }
 
   /**
@@ -133,23 +133,23 @@ export default class Track extends EventEmitter {
    * 获取当前 Track 的 cursor 位置
    */
   get position() {
-    if (this.#elapsedTime < this.#options.delay) {
+    if (this.elapsedTime < this.options.delay) {
       return 0;
     }
 
-    if (this.#elapsedTime >= this.#options.delay + this.#options.duration) {
+    if (this.elapsedTime >= this.options.delay + this.options.duration) {
       return 1;
     }
 
-    return Math.max(0, Math.min(1, (this.#elapsedTime - this.#options.delay) / this.#options.duration));
+    return Math.max(0, Math.min(1, (this.elapsedTime - this.options.delay) / this.options.duration));
   }
 
   /**
    * 开始播放
    */
   play() {
-    this.#playing = true;
-    this.#state = State.playing;
+    this.playing = true;
+    this._state = State.playing;
     this.advance(0);
     trackManger.add(this);
   }
@@ -158,8 +158,8 @@ export default class Track extends EventEmitter {
    * 暂停
    */
   pause() {
-    if (this.#state === State.playing) {
-      this.#state = State.paused;
+    if (this.state === State.playing) {
+      this._state = State.paused;
     }
   }
 
@@ -167,8 +167,8 @@ export default class Track extends EventEmitter {
    * 继续播放
    */
   resume() {
-    if (this.#state === State.paused) {
-      this.#state = State.playing;
+    if (this.state === State.paused) {
+      this._state = State.playing;
     }
   }
 
@@ -176,8 +176,8 @@ export default class Track extends EventEmitter {
    * 停止
    */
   stop() {
-    this.#playing = false;
-    this.#state = State.stopped;
+    this.playing = false;
+    this._state = State.stopped;
     // this.advance(0);
     trackManger.remove(this);
   }
@@ -186,7 +186,7 @@ export default class Track extends EventEmitter {
    * 重新开始
    */
   restart() {
-    this.#elapsedTime = 0;
+    this._elapsedTime = 0;
     trackManger.add(this);
   }
 
@@ -194,7 +194,7 @@ export default class Track extends EventEmitter {
    * 重置
    */
   reset() {
-    if (this.#state === State.playing) {
+    if (this.state === State.playing) {
       this.stop();
     } else {
       this.advance(0);
@@ -205,7 +205,7 @@ export default class Track extends EventEmitter {
    * 在播放和暂停状态切换
    */
   toggle() {
-    if (this.#playing) {
+    if (this.playing) {
       if (this.isPlaying) {
         this.pause();
       } else {
@@ -221,27 +221,30 @@ export default class Track extends EventEmitter {
    */
   advance(position, e = true) {
     const p = utils.clamp(position, 0, 1);
-    this.#elapsedTime = e ? this.totalDuration * p : this.#options.delay + this.#options.duration * p;
-    this.#options?.track?.(this.position);
+    this._elapsedTime = e ? this.totalDuration * p : this.options.delay + this.options.duration * p;
+    this.options?.track?.(this.position);
     this.emit('track', {
       position: this.position,
     });
   }
 
   tick(time) {
-    if (this.#lastTime < 0) {
-      this.#lastTime = time;
+    if (this.lastTime < 0) {
+      this.lastTime = time;
     }
-    const lastTime = this.#lastTime;
-    this.#lastTime = time;
-    if (this.#state !== State.playing) return;
+    const lastTime = this.lastTime;
+    this.lastTime = time;
+    if (this.state !== State.playing) return;
     const delta = time - lastTime;
-    this.#elapsedTime += delta;
-    this.#elapsedTime = Math.min(this.#elapsedTime, this.totalDuration);
+    this._elapsedTime += delta;
+    this._elapsedTime = Math.min(this.elapsedTime, this.totalDuration);
     if (this.totalPosition === 1) {
       this.advance(this.totalPosition);
-      this.#options.repeat ? this.restart() : this.stop();
-    } else {
+      if (this.options.repeat) {
+        this.restart();
+      } else {
+        this.stop();
+      }
       this.advance(this.totalPosition);
     }
   }

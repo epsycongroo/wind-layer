@@ -17,22 +17,22 @@ export interface MaskPassOptions {
  * 遮罩
  */
 export default class MaskPass extends Pass<MaskPassOptions> {
-  readonly #program: Program;
+  private readonly program: Program;
   readonly prerender = true;
 
-  #meshes: Mesh[];
+  private meshes: Mesh[];
 
   constructor(id: string, renderer: Renderer, options: MaskPassOptions = {} as MaskPassOptions) {
     super(id, renderer, options);
 
-    this.#program = new Program(renderer, {
+    this.program = new Program(renderer, {
       vertexShader: maskVert,
       fragmentShader: maskFrag,
       includes: shaderLib,
       transparent: true,
     });
 
-    this.#meshes = [];
+    this.meshes = [];
 
     this.updateGeometry();
   }
@@ -45,8 +45,8 @@ export default class MaskPass extends Pass<MaskPassOptions> {
     const len = mask.data.length;
     let i = 0;
 
-    for (let k = 0; k < this.#meshes.length; k++) {
-      const mesh = this.#meshes[k];
+    for (let k = 0; k < this.meshes.length; k++) {
+      const mesh = this.meshes[k];
 
       // 只销毁 Geometry
       if (mesh.geometry) {
@@ -54,14 +54,14 @@ export default class MaskPass extends Pass<MaskPassOptions> {
       }
     }
 
-    this.#meshes = [];
+    this.meshes = [];
     for (; i < len; i++) {
       const attributes = mask.data[i];
 
-      this.#meshes.push(
+      this.meshes.push(
         new Mesh(this.renderer, {
           mode: this.renderer.gl.TRIANGLES,
-          program: this.#program,
+          program: this.program,
           geometry: new Geometry(this.renderer, attributes),
         }),
       );
@@ -94,8 +94,8 @@ export default class MaskPass extends Pass<MaskPassOptions> {
     // 0 0 0 0 0
     // 0 0 0 0 0
 
-    for (let k = 0; k < this.#meshes.length; k++) {
-      const mesh = this.#meshes[k];
+    for (let k = 0; k < this.meshes.length; k++) {
+      const mesh = this.meshes[k];
 
       for (let j = 0; j < worlds.length; j++) {
         mesh.program.setUniform('u_offset', worlds[j]);
