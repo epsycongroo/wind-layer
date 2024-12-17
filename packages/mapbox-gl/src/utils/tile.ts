@@ -1,5 +1,5 @@
-import type { TileBounds, Bounds } from 'wind-gl-core';
-import { TileID, mod } from 'wind-gl-core';
+import type { TileBounds, Bounds } from '@jokkicn/wind-gl-core';
+import { TileID, mod } from '@jokkicn/wind-gl-core';
 import { utils } from '@sakitam-gis/vis-engine';
 import RBush, { type NodeItem } from '@sakitam-gis/rbush';
 import { mercatorXfromLng, mercatorYfromLat, latFromMercatorY, lngFromMercatorX } from './mercatorCoordinate';

@@ -1,5 +1,5 @@
-import type { Renderer, Attributes } from '@sakitam-gis/vis-engine';
-import { Program, Mesh, Geometry } from '@sakitam-gis/vis-engine';
+import type { Renderer, Attributes } from '@jokkicn/vis-engine';
+import { Program, Mesh, Geometry } from '@jokkicn/vis-engine';
 import Pass from './base';
 import maskVert from '../../shaders/mask.vert.glsl';
 import maskFrag from '../../shaders/mask.frag.glsl';

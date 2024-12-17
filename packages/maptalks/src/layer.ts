@@ -10,8 +10,8 @@ import {
   utils,
 } from '@sakitam-gis/vis-engine';
 
-import type { ImageSource, SourceType, UserOptions } from 'wind-gl-core';
-import { BaseLayer, LayerSourceType, polygon2buffer, TileID } from 'wind-gl-core';
+import type { ImageSource, SourceType, UserOptions } from '@jokkicn/wind-gl-core';
+import { BaseLayer, LayerSourceType, polygon2buffer, TileID } from '@jokkicn/wind-gl-core';
 
 highPrecision(true);
 

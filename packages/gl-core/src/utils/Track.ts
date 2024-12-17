@@ -1,4 +1,4 @@
-import { EventEmitter, utils } from '@sakitam-gis/vis-engine';
+import { EventEmitter, utils } from '@jokkicn/vis-engine';
 import getTrackManger from './TrackManger';
 
 export enum State {

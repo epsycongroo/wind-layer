@@ -9,7 +9,7 @@ import {
   RenderFrom,
   DecodeType,
   LayerSourceType,
-} from 'wind-gl-core';
+} from '@jokkicn/wind-gl-core';
 export { default as Layer } from './layer';
 export {
   configDeps,

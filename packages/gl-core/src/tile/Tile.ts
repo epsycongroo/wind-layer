@@ -1,5 +1,5 @@
-import type { Program, Renderer } from '@sakitam-gis/vis-engine';
-import { Geometry, Texture } from '@sakitam-gis/vis-engine';
+import type { Program, Renderer } from '@jokkicn/vis-engine';
+import { Geometry, Texture } from '@jokkicn/vis-engine';
 import TileMesh from './TileMesh';
 import type { ParseOptionsType, ProjTileBounds, TileBounds } from '../type';
 import { RenderFrom, TileState } from '../type';

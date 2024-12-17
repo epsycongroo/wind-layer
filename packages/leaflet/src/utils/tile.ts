@@ -1,4 +1,4 @@
-import type { TileBounds, TileID } from 'wind-gl-core';
+import type { TileBounds, TileID } from '@jokkicn/wind-gl-core';
 import { fromLngLat, latFromMercatorY, lngFromMercatorX, MAX_MERCATOR_LATITUDE } from './mercatorCoordinate';
 
 export function getTileProjBounds(tileID: TileID) {

@@ -1,5 +1,5 @@
-import type { Renderer, Texture } from '@sakitam-gis/vis-engine';
-import { Program, Mesh, Geometry, Vector2, RenderTarget, BlendType } from '@sakitam-gis/vis-engine';
+import type { Renderer, Texture } from '@jokkicn/vis-engine';
+import { Program, Mesh, Geometry, Vector2, RenderTarget, BlendType } from '@jokkicn/vis-engine';
 import Pass from '../base';
 import { littleEndian } from '../../../utils/common';
 import vert from '../../../shaders/particles/draw.vert.glsl';

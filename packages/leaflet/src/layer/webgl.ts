@@ -1,8 +1,8 @@
 import * as L from 'leaflet';
 import rewind from '@mapbox/geojson-rewind';
-import { OrthographicCamera, Renderer, Scene, utils } from '@sakitam-gis/vis-engine';
-import type { SourceType, RenderType, UserOptions } from 'wind-gl-core';
-import { LayerSourceType, TileID, BaseLayer as Layer, polygon2buffer } from 'wind-gl-core';
+import { OrthographicCamera, Renderer, Scene, utils } from '@jokkicn/vis-engine';
+import type { SourceType, RenderType, UserOptions } from '@jokkicn/wind-gl-core';
+import { LayerSourceType, TileID, BaseLayer as Layer, polygon2buffer } from '@jokkicn/wind-gl-core';
 import CameraSync from '../utils/CameraSync';
 import {
   MAX_MERCATOR_LATITUDE,

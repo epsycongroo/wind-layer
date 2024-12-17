@@ -1,5 +1,5 @@
-import type { Renderer, Texture } from '@sakitam-gis/vis-engine';
-import { Program, Mesh, Geometry, RenderTarget } from '@sakitam-gis/vis-engine';
+import type { Renderer, Texture } from '@jokkicn/vis-engine';
+import { Program, Mesh, Geometry, RenderTarget } from '@jokkicn/vis-engine';
 import Pass from './base';
 import vert from '../../shaders/picker.vert.glsl';
 import frag from '../../shaders/picker.frag.glsl';

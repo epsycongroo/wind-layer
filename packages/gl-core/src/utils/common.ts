@@ -1,5 +1,5 @@
 import earcut from 'earcut';
-import { utils, type Attributes } from '@sakitam-gis/vis-engine';
+import { utils, type Attributes } from '@jokkicn/vis-engine';
 import type { Bounds } from '../type';
 
 export function calcMinMax(array: number[]): [number, number] {

@@ -128,6 +128,9 @@ importers:
       '@amap/amap-jsapi-loader':
         specifier: ^1.0.1
         version: 1.0.1
+      '@jokkicn/leaflet-wind':
+        specifier: workspace:*
+        version: link:../packages/leaflet
       '@sakitam-gis/mapbox-wind':
         specifier: workspace:*
         version: link:../packages/mapbox-gl
@@ -155,9 +158,6 @@ importers:
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
-      leaflet-wind:
-        specifier: workspace:*
-        version: link:../packages/leaflet
       mapbox-gl:
         specifier: ^2.15.0
         version: 2.15.0
@@ -242,7 +242,7 @@ importers:
 
   packages/gl-core:
     dependencies:
-      '@sakitam-gis/vis-engine':
+      '@jokkicn/vis-engine':
         specifier: ^1.5.3
         version: 1.5.3
       earcut:
@@ -258,21 +258,21 @@ importers:
 
   packages/leaflet:
     dependencies:
+      '@jokkicn/vis-engine':
+        specifier: ^1.5.3
+        version: 1.5.3
+      '@jokkicn/wind-gl-core':
+        specifier: workspace:*
+        version: link:../gl-core
       '@mapbox/geojson-rewind':
         specifier: ^0.5.2
         version: 0.5.2
-      '@sakitam-gis/vis-engine':
-        specifier: ^1.5.3
-        version: 1.5.3
       gl-matrix:
         specifier: ^3.4.3
         version: 3.4.3
       wind-core:
         specifier: workspace:*
         version: link:../core
-      wind-gl-core:
-        specifier: workspace:*
-        version: link:../gl-core
     devDependencies:
       '@types/gl-matrix':
         specifier: ^3.2.0
@@ -286,6 +286,9 @@ importers:
 
   packages/mapbox-gl:
     dependencies:
+      '@jokkicn/wind-gl-core':
+        specifier: workspace:*
+        version: link:../gl-core
       '@mapbox/geojson-rewind':
         specifier: ^0.5.2
         version: 0.5.2
@@ -301,9 +304,6 @@ importers:
       wind-core:
         specifier: workspace:*
         version: link:../core
-      wind-gl-core:
-        specifier: workspace:*
-        version: link:../gl-core
     devDependencies:
       '@types/mapbox-gl':
         specifier: ^1.9.1
@@ -314,6 +314,9 @@ importers:
 
   packages/maplibre-gl:
     dependencies:
+      '@jokkicn/wind-gl-core':
+        specifier: workspace:*
+        version: link:../gl-core
       '@mapbox/geojson-rewind':
         specifier: ^0.5.2
         version: 0.5.2
@@ -326,9 +329,6 @@ importers:
       gl-matrix:
         specifier: ^3.4.3
         version: 3.4.3
-      wind-gl-core:
-        specifier: workspace:*
-        version: link:../gl-core
     devDependencies:
       maplibre-gl:
         specifier: ^3.6.2
@@ -336,6 +336,9 @@ importers:
 
   packages/maptalks:
     dependencies:
+      '@jokkicn/wind-gl-core':
+        specifier: workspace:*
+        version: link:../gl-core
       '@mapbox/geojson-rewind':
         specifier: ^0.5.2
         version: 0.5.2
@@ -345,9 +348,6 @@ importers:
       wind-core:
         specifier: workspace:*
         version: link:../core
-      wind-gl-core:
-        specifier: workspace:*
-        version: link:../gl-core
     devDependencies:
       maptalks:
         specifier: ^1.0.0-rc.10
@@ -1286,6 +1286,14 @@ packages:
     dependencies:
       '@sinclair/typebox': 0.27.8
     dev: true
+
+  /@jokkicn/vis-engine@1.5.3:
+    resolution: {integrity: sha512-0IAr8BE9VjQ2hwMqSz0r7PwTHRz9g+Bu72ezuCKjquUCtjWcQqTXbho6zFG6Bp8876seXwcYfBFviZgBVJh6qw==, tarball: https://registry.npmjs.org/@jokkicn/vis-engine/-/vis-engine-1.5.3.tgz}
+    engines: {node: '>= 14.18.1', npm: '>= 6.14.15'}
+    dependencies:
+      colord: 2.9.3
+      gl-matrix: 3.4.3
+    dev: false
 
   /@jridgewell/gen-mapping@0.3.5:
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}

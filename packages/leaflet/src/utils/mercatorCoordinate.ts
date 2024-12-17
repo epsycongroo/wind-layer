@@ -1,4 +1,4 @@
-import { utils } from '@sakitam-gis/vis-engine';
+import { utils } from '@jokkicn/vis-engine';
 
 const { clamp } = utils;
 

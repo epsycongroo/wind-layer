@@ -72,7 +72,7 @@
     "@sakitam-gis/vis-engine": "^1.5.3",
     "@mapbox/geojson-rewind": "^0.5.2",
     "wind-core": "workspace:*",
-    "wind-gl-core": "workspace:*"
+    "@jokkicn/wind-gl-core": "workspace:*"
   },
   "peerDependencies": {
     "maptalks": ">=0.49.0"

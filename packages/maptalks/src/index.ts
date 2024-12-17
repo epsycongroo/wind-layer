@@ -9,7 +9,7 @@ import {
   RenderFrom,
   DecodeType,
   LayerSourceType,
-} from 'wind-gl-core';
+} from '@jokkicn/wind-gl-core';
 import WindLayer, { formatData, WindCore, Field } from './Canvas';
 export { Layer } from './layer';
 export {

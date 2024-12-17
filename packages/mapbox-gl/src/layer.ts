@@ -2,8 +2,8 @@ import mapboxgl from 'mapbox-gl';
 import rewind from '@mapbox/geojson-rewind';
 import { OrthographicCamera, Renderer, Scene, utils } from '@sakitam-gis/vis-engine';
 
-import type { UserOptions, SourceType } from 'wind-gl-core';
-import { BaseLayer, LayerSourceType, RenderType, TileID, polygon2buffer } from 'wind-gl-core';
+import type { UserOptions, SourceType } from '@jokkicn/wind-gl-core';
+import { BaseLayer, LayerSourceType, RenderType, TileID, polygon2buffer } from '@jokkicn/wind-gl-core';
 
 import CameraSync from './utils/CameraSync';
 import { getCoordinatesCenterTileID } from './utils/mercatorCoordinate';

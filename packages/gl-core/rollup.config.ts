@@ -79,7 +79,7 @@ const umdBuild: RollupOptions = {
     name: pkg.namespace,
     sourcemap: !MINIFY,
     globals: {
-      '@sakitam-gis/vis-engine': 've',
+      '@jokkicn/vis-engine': 've',
     },
     file: MINIFY
       ? pkg.main

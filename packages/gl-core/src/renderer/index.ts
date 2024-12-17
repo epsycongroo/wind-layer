@@ -1,5 +1,5 @@
-import type { Attributes, Renderer, Scene } from '@sakitam-gis/vis-engine';
-import { DataTexture, Raf, utils, Vector2 } from '@sakitam-gis/vis-engine';
+import type { Attributes, Renderer, Scene } from '@jokkicn/vis-engine';
+import { DataTexture, Raf, utils, Vector2 } from '@jokkicn/vis-engine';
 import wgw from 'wind-gl-worker';
 import Pipelines from './Pipelines';
 import ColorizeComposePass from './pass/color/compose';

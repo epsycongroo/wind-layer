@@ -73,7 +73,7 @@
     "@sakitam-gis/rbush": "workspace:*",
     "@mapbox/geojson-rewind": "^0.5.2",
     "wind-core": "workspace:*",
-    "wind-gl-core": "workspace:*",
+    "@jokkicn/wind-gl-core": "workspace:*",
     "gl-matrix": "^3.4.3"
   },
   "peerDependencies": {

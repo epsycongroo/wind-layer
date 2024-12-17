@@ -1,5 +1,5 @@
 {
-  "name": "leaflet-wind",
+  "name": "@jokkicn/leaflet-wind",
   "version": "1.2.2",
   "description": "leaflet wind",
   "keywords": [
@@ -49,7 +49,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sakitam-fdd/wind-layer.git",
+    "url": "git+https://github.com/epsycongroo/wind-layer.git",
     "directory": "packages/leaflet"
   },
   "scripts": {
@@ -69,10 +69,10 @@
   },
   "homepage": "https://github.com/sakitam-fdd/wind-layer#readme",
   "dependencies": {
-    "@sakitam-gis/vis-engine": "^1.5.3",
+    "@jokkicn/vis-engine": "^1.5.3",
     "@mapbox/geojson-rewind": "^0.5.2",
     "wind-core": "workspace:*",
-    "wind-gl-core": "workspace:*",
+    "@jokkicn/wind-gl-core": "workspace:*",
     "gl-matrix": "^3.4.3"
   },
   "peerDependencies": {

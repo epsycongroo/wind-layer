@@ -23,7 +23,7 @@
     "amap-wind": "workspace:*",
     "bmap-wind": "workspace:*",
     "leaflet": "^1.9.4",
-    "leaflet-wind": "workspace:*",
+    "@jokkicn/leaflet-wind": "workspace:*",
     "maptalks": "^1.0.0-rc.33",
     "proj4": "2.6.0",
     "tweakpane": "^4.0.0"

@@ -1,4 +1,4 @@
-import { EventEmitter } from '@sakitam-gis/vis-engine';
+import { EventEmitter } from '@jokkicn/vis-engine';
 import LRUCache from '../utils/LRUCache';
 import type TileSource from './tile';
 import type ImageSource from './image';

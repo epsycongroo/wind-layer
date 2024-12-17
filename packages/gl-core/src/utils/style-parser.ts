@@ -13,7 +13,7 @@
  * ]
  * ```
  */
-import { utils } from '@sakitam-gis/vis-engine';
+import { utils } from '@jokkicn/vis-engine';
 import { findStopLessThanOrEqualTo } from './common';
 
 export function parseColorStyle(styleAttrField: any[]) {

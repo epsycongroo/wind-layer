@@ -1,5 +1,5 @@
-import type { Renderer } from '@sakitam-gis/vis-engine';
-import { utils, EventEmitter } from '@sakitam-gis/vis-engine';
+import type { Renderer } from '@jokkicn/vis-engine';
+import { utils, EventEmitter } from '@jokkicn/vis-engine';
 import SourceCache from './cahce';
 import type { ParseOptionsType, TileSourceOptions } from '../type';
 import { DecodeType, LayerSourceType, TileState } from '../type';

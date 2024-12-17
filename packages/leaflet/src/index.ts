@@ -10,7 +10,7 @@ import {
   RenderFrom,
   DecodeType,
   LayerSourceType,
-} from 'wind-gl-core';
+} from '@jokkicn/wind-gl-core';
 import { WindLayer } from './layer/canvas';
 import { WebglLayer } from './layer/webgl';
 

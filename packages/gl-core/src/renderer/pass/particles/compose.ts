@@ -1,5 +1,5 @@
-import type { Renderer } from '@sakitam-gis/vis-engine';
-import { Program, RenderTarget } from '@sakitam-gis/vis-engine';
+import type { Renderer } from '@jokkicn/vis-engine';
+import { Program, RenderTarget } from '@jokkicn/vis-engine';
 import Pass from '../base';
 import vert from '../../../shaders/common.vert.glsl';
 import frag from '../../../shaders/compose.frag.glsl';

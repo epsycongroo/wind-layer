@@ -1,6 +1,6 @@
 import type { vec3, vec4 } from 'gl-matrix';
 import { quat, mat4 } from 'gl-matrix';
-import type { Scene } from '@sakitam-gis/vis-engine';
+import type { Scene } from '@jokkicn/vis-engine';
 import {
   Matrix4,
   Vector3,
@@ -9,7 +9,7 @@ import {
   PerspectiveCamera,
   utils,
   highPrecision,
-} from '@sakitam-gis/vis-engine';
+} from '@jokkicn/vis-engine';
 import { mercatorZfromAltitude } from './mercatorCoordinate';
 
 const { degToRad, radToDeg } = utils;
