@@ -112,8 +112,8 @@ export class BaseLayer extends L.Layer {
 
     this.canvas = this._createCanvas(this._layerId, this.options.zIndex || 1);
 
-    const animated = this._map.options.zoomAnimation && L.Browser.any3d;
-    L.DomUtil.addClass(this.canvas, 'leaflet-zoom-' + (animated ? 'animated' : 'hide'));
+    const animated = this._map.options.zoomAnimation;
+    this.canvas.classList.add('leaflet-zoom-' + (animated ? 'animated' : 'hide'));
 
     // @ts-ignore 忽略错误
     this._map.on(this.getEvents(), this);
@@ -158,7 +158,7 @@ export class BaseLayer extends L.Layer {
       // zoomanim: undefined,
     };
 
-    if (this._map.options.zoomAnimation && L.Browser.any3d) {
+    if (this._map.options.zoomAnimation) {
       events.zoomanim = this._animateZoom;
     }
 

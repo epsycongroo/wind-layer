@@ -417,7 +417,9 @@ export class WebglLayer extends BaseLayer {
 
   _resetView(e?: any) {
     const animating = e && (e.pinch || e.flyTo);
-    this._setView(this._map.getCenter(), this._map.getZoom(), animating, animating);
+    if (this._map) {
+      this._setView(this._map.getCenter(), this._map.getZoom(), animating, animating);
+    }
   }
 
   _resetGrid() {
@@ -425,21 +427,22 @@ export class WebglLayer extends BaseLayer {
     const crs = map.options.crs;
     const tileSize = this.getTileSize();
     const tileZoom = this._tileZoom;
+    if (map) {
+      const bounds = this._map.getPixelWorldBounds(this._tileZoom);
+      if (bounds) {
+        this._globalTileRange = this._pxBoundsToTileRange(bounds);
+      }
 
-    const bounds = this._map.getPixelWorldBounds(this._tileZoom);
-    if (bounds) {
-      this._globalTileRange = this._pxBoundsToTileRange(bounds);
+      // 无论任何时候都计算瓦片范围，我们需要用此参数计算瓦片在那个世界
+      this._wrapX = crs!.wrapLng && [
+        Math.floor(map.project([0, crs!.wrapLng[0]], tileZoom).x / tileSize.x),
+        Math.ceil(map.project([0, crs!.wrapLng[1]], tileZoom).x / tileSize.y),
+      ];
+      this._wrapY = crs!.wrapLat && [
+        Math.floor(map.project([crs!.wrapLat[0], 0], tileZoom).y / tileSize.x),
+        Math.ceil(map.project([crs!.wrapLat[1], 0], tileZoom).y / tileSize.y),
+      ];
     }
-
-    // 无论任何时候都计算瓦片范围，我们需要用此参数计算瓦片在那个世界
-    this._wrapX = crs!.wrapLng && [
-      Math.floor(map.project([0, crs!.wrapLng[0]], tileZoom).x / tileSize.x),
-      Math.ceil(map.project([0, crs!.wrapLng[1]], tileZoom).x / tileSize.y),
-    ];
-    this._wrapY = crs!.wrapLat && [
-      Math.floor(map.project([crs!.wrapLat[0], 0], tileZoom).y / tileSize.x),
-      Math.ceil(map.project([crs!.wrapLat[1], 0], tileZoom).y / tileSize.y),
-    ];
   }
 
   _setView(center: L.LatLng, zoom: number, noPrune?: boolean, noUpdate?: boolean) {
@@ -634,10 +637,10 @@ export class WebglLayer extends BaseLayer {
   }
 
   onMoveEnd() {
-    this._reset();
-    if (!this._map || (this._map as any)._animatingZoom) {
-      return;
-    }
+    // this._reset();
+    // if (!this._map || (this._map as any)._animatingZoom) {
+    //   return;
+    // }
 
     if (this.layer) {
       this.layer.moveEnd();
@@ -660,13 +663,14 @@ export class WebglLayer extends BaseLayer {
     const events: Record<string, any> = {
       resize: this._onResize,
       viewreset: this._resetView,
+      move: this._reset,
       moveend: this.onMoveEnd,
       movestart: this.onMoveStart,
       zoom: this.handleZoom,
       zoomend: this._reset,
     };
 
-    if (this._map.options.zoomAnimation && L.Browser.any3d) {
+    if (this._map.options.zoomAnimation) {
       events.zoomanim = this._animateZoom;
     }
 
