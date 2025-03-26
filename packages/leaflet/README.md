@@ -7,7 +7,7 @@
 ### Install
 
 ```bash
-pnpm i leaflet-wind -S
+pnpm i @jokkicn/leaflet-wind -S
 ```
 
 ### Example
