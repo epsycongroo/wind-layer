@@ -1,6 +1,6 @@
 {
   "name": "@jokkicn/leaflet-wind",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "leaflet wind",
   "keywords": [
     "leaflet",
@@ -71,8 +71,8 @@
   "dependencies": {
     "@jokkicn/vis-engine": "^1.5.3",
     "@mapbox/geojson-rewind": "^0.5.2",
-    "wind-core": "workspace:*",
-    "@jokkicn/wind-gl-core": "workspace:*",
+    "wind-core": "1.1.8",
+    "@jokkicn/wind-gl-core": "2.0.2",
     "gl-matrix": "^3.4.3"
   },
   "peerDependencies": {
