@@ -637,10 +637,10 @@ export class WebglLayer extends BaseLayer {
   }
 
   onMoveEnd() {
-    // this._reset();
-    // if (!this._map || (this._map as any)._animatingZoom) {
-    //   return;
-    // }
+    this._reset();
+    if (!this._map || (this._map as any)._animatingZoom) {
+      return;
+    }
 
     if (this.layer) {
       this.layer.moveEnd();
